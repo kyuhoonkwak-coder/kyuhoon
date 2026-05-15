@@ -3,31 +3,446 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hello</title>
+  <title>가계부</title>
   <style>
-    body {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
+    * {
       margin: 0;
-      font-family: Arial, sans-serif;
-      background-color: #f4f4f9;
-      color: #333;
+      padding: 0;
+      box-sizing: border-box;
     }
-    .hello-box {
-      text-align: center;
-      padding: 20px 30px;
-      border-radius: 12px;
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
       background: white;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+      border-radius: 15px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+    }
+    
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+    
+    .header h1 {
+      font-size: 32px;
+      margin-bottom: 10px;
+    }
+    
+    .tabs {
+      display: flex;
+      border-bottom: 2px solid #eee;
+    }
+    
+    .tab-btn {
+      flex: 1;
+      padding: 15px;
+      border: none;
+      background: none;
+      font-size: 16px;
+      font-weight: 600;
+      color: #999;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .tab-btn.active {
+      color: #667eea;
+      border-bottom: 3px solid #667eea;
+      margin-bottom: -2px;
+    }
+    
+    .content {
+      padding: 30px;
+    }
+    
+    .tab-content {
+      display: none;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    .input-group {
+      margin-bottom: 20px;
+    }
+    
+    .input-group label {
+      display: block;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 8px;
+    }
+    
+    .input-group input,
+    .input-group select {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: border-color 0.3s ease;
+    }
+    
+    .input-group input:focus,
+    .input-group select:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+    
+    .btn-add {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    .btn-add:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-add:active {
+      transform: translateY(0);
+    }
+    
+    .expenses-list {
+      margin-top: 30px;
+    }
+    
+    .expenses-list h3 {
+      color: #333;
+      margin-bottom: 15px;
+      font-size: 18px;
+    }
+    
+    .expense-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px;
+      background: #f9f9f9;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      border-left: 4px solid #667eea;
+    }
+    
+    .expense-info {
+      flex: 1;
+    }
+    
+    .expense-category {
+      font-weight: 600;
+      color: #667eea;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+    
+    .expense-description {
+      color: #666;
+      font-size: 14px;
+    }
+    
+    .expense-amount {
+      font-weight: 700;
+      font-size: 18px;
+      color: #ff6b6b;
+      margin-right: 10px;
+    }
+    
+    .btn-delete {
+      background: #ff6b6b;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: background 0.3s ease;
+    }
+    
+    .btn-delete:hover {
+      background: #ff5252;
+    }
+    
+    .summary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px;
+      border-radius: 8px;
+      margin-top: 20px;
+      text-align: center;
+    }
+    
+    .summary-label {
+      font-size: 14px;
+      opacity: 0.9;
+      margin-bottom: 8px;
+    }
+    
+    .summary-amount {
+      font-size: 32px;
+      font-weight: 700;
+    }
+    
+    .empty-message {
+      text-align: center;
+      color: #999;
+      padding: 30px;
+      font-size: 14px;
     }
   </style>
 </head>
 <body>
-  <div class="hello-box">
-    <h1>Hello, World!</h1>
-    <p>HTML 파일이 생성되었습니다.asdlfkjslkdjf</p>
+  <div class="container">
+    <div class="header">
+      <h1>💰 가계부</h1>
+    </div>
+    
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('daily')">일일</button>
+      <button class="tab-btn" onclick="switchTab('weekly')">주간</button>
+      <button class="tab-btn" onclick="switchTab('monthly')">월간</button>
+    </div>
+    
+    <div class="content">
+      <!-- 일일 탭 -->
+      <div id="daily" class="tab-content active">
+        <div class="input-group">
+          <label>날짜</label>
+          <input type="date" id="daily-date" />
+        </div>
+        
+        <div class="form-row">
+          <div class="input-group">
+            <label>카테고리</label>
+            <select id="daily-category">
+              <option value="">선택하세요</option>
+              <option value="식사">🍔 식사</option>
+              <option value="교통">🚗 교통</option>
+              <option value="쇼핑">🛍️ 쇼핑</option>
+              <option value="엔터테인먼트">🎬 엔터테인먼트</option>
+              <option value="기타">📌 기타</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label>금액</label>
+            <input type="number" id="daily-amount" placeholder="0" />
+          </div>
+        </div>
+        
+        <div class="input-group">
+          <label>설명</label>
+          <input type="text" id="daily-description" placeholder="예: 점심" />
+        </div>
+        
+        <button class="btn-add" onclick="addExpense('daily')">지출 추가</button>
+        
+        <div class="expenses-list">
+          <div id="daily-list"></div>
+        </div>
+      </div>
+      
+      <!-- 주간 탭 -->
+      <div id="weekly" class="tab-content">
+        <div class="input-group">
+          <label>주간 시작일</label>
+          <input type="date" id="weekly-date" />
+        </div>
+        
+        <div class="form-row">
+          <div class="input-group">
+            <label>카테고리</label>
+            <select id="weekly-category">
+              <option value="">선택하세요</option>
+              <option value="식사">🍔 식사</option>
+              <option value="교통">🚗 교통</option>
+              <option value="쇼핑">🛍️ 쇼핑</option>
+              <option value="엔터테인먼트">🎬 엔터테인먼트</option>
+              <option value="기타">📌 기타</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label>금액</label>
+            <input type="number" id="weekly-amount" placeholder="0" />
+          </div>
+        </div>
+        
+        <div class="input-group">
+          <label>설명</label>
+          <input type="text" id="weekly-description" placeholder="예: 주간 지출" />
+        </div>
+        
+        <button class="btn-add" onclick="addExpense('weekly')">지출 추가</button>
+        
+        <div class="expenses-list">
+          <div id="weekly-list"></div>
+        </div>
+      </div>
+      
+      <!-- 월간 탭 -->
+      <div id="monthly" class="tab-content">
+        <div class="input-group">
+          <label>월</label>
+          <input type="month" id="monthly-date" />
+        </div>
+        
+        <div class="form-row">
+          <div class="input-group">
+            <label>카테고리</label>
+            <select id="monthly-category">
+              <option value="">선택하세요</option>
+              <option value="식사">🍔 식사</option>
+              <option value="교통">🚗 교통</option>
+              <option value="쇼핑">🛍️ 쇼핑</option>
+              <option value="엔터테인먼트">🎬 엔터테인먼트</option>
+              <option value="기타">📌 기타</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label>금액</label>
+            <input type="number" id="monthly-amount" placeholder="0" />
+          </div>
+        </div>
+        
+        <div class="input-group">
+          <label>설명</label>
+          <input type="text" id="monthly-description" placeholder="예: 월간 지출" />
+        </div>
+        
+        <button class="btn-add" onclick="addExpense('monthly')">지출 추가</button>
+        
+        <div class="expenses-list">
+          <div id="monthly-list"></div>
+        </div>
+      </div>
+    </div>
   </div>
+  
+  <script>
+    // 로컬스토리지에서 데이터 로드
+    let expenses = JSON.parse(localStorage.getItem('expenses')) || { daily: [], weekly: [], monthly: [] };
+    
+    // 오늘 날짜 설정
+    document.getElementById('daily-date').valueAsDate = new Date();
+    document.getElementById('weekly-date').valueAsDate = new Date();
+    document.getElementById('monthly-date').valueAsDate = new Date();
+    
+    function switchTab(tabName) {
+      // 모든 탭 비활성화
+      const tabContents = document.querySelectorAll('.tab-content');
+      tabContents.forEach(tab => tab.classList.remove('active'));
+      
+      const tabBtns = document.querySelectorAll('.tab-btn');
+      tabBtns.forEach(btn => btn.classList.remove('active'));
+      
+      // 선택한 탭 활성화
+      document.getElementById(tabName).classList.add('active');
+      event.target.classList.add('active');
+      
+      displayExpenses(tabName);
+    }
+    
+    function addExpense(type) {
+      const dateInput = document.getElementById(`${type}-date`);
+      const category = document.getElementById(`${type}-category`).value;
+      const amount = parseFloat(document.getElementById(`${type}-amount`).value);
+      const description = document.getElementById(`${type}-description`).value;
+      
+      if (!category || !amount || !dateInput.value) {
+        alert('모든 필드를 입력해주세요.');
+        return;
+      }
+      
+      const expense = {
+        id: Date.now(),
+        date: dateInput.value,
+        category: category,
+        amount: amount,
+        description: description
+      };
+      
+      expenses[type].push(expense);
+      localStorage.setItem('expenses', JSON.stringify(expenses));
+      
+      // 입력값 초기화
+      document.getElementById(`${type}-amount`).value = '';
+      document.getElementById(`${type}-description`).value = '';
+      document.getElementById(`${type}-category`).value = '';
+      
+      displayExpenses(type);
+    }
+    
+    function deleteExpense(type, id) {
+      expenses[type] = expenses[type].filter(e => e.id !== id);
+      localStorage.setItem('expenses', JSON.stringify(expenses));
+      displayExpenses(type);
+    }
+    
+    function displayExpenses(type) {
+      const listContainer = document.getElementById(`${type}-list`);
+      const typeExpenses = expenses[type];
+      
+      if (typeExpenses.length === 0) {
+        listContainer.innerHTML = '<div class="empty-message">지출 기록이 없습니다.</div>';
+        return;
+      }
+      
+      let total = 0;
+      let html = '<h3>지출 목록</h3>';
+      
+      typeExpenses.forEach(expense => {
+        total += expense.amount;
+        html += `
+          <div class="expense-item">
+            <div class="expense-info">
+              <div class="expense-category">${expense.category}</div>
+              <div class="expense-description">${expense.description} (${expense.date})</div>
+            </div>
+            <div style="display: flex; align-items: center;">
+              <div class="expense-amount">₩${expense.amount.toLocaleString()}</div>
+              <button class="btn-delete" onclick="deleteExpense('${type}', ${expense.id})">삭제</button>
+            </div>
+          </div>
+        `;
+      });
+      
+      html += `
+        <div class="summary">
+          <div class="summary-label">합계</div>
+          <div class="summary-amount">₩${total.toLocaleString()}</div>
+        </div>
+      `;
+      
+      listContainer.innerHTML = html;
+    }
+    
+    // 초기 표시
+    displayExpenses('daily');
+  </script>
 </body>
 </html>
