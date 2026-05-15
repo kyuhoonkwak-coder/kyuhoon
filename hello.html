@@ -215,6 +215,67 @@
       padding: 30px;
       font-size: 14px;
     }
+    
+    .table-container {
+      margin-top: 30px;
+      overflow-x: auto;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
+    
+    th {
+      background: #f5f5f5;
+      padding: 12px;
+      text-align: left;
+      font-weight: 600;
+      color: #333;
+      border-bottom: 2px solid #ddd;
+    }
+    
+    td {
+      padding: 12px;
+      border-bottom: 1px solid #eee;
+      color: #666;
+    }
+    
+    tr:hover {
+      background: #f9f9f9;
+    }
+    
+    .date-header {
+      background: #f0f0f0;
+      font-weight: 600;
+      color: #667eea;
+    }
+    
+    .category-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      background: #e3f2fd;
+      color: #667eea;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    
+    .amount-positive {
+      color: #ff6b6b;
+      font-weight: 600;
+    }
+    
+    .daily-total {
+      background: #f5f5f5;
+      font-weight: 600;
+    }
+    
+    .daily-total td:last-child {
+      color: #667eea;
+      font-weight: 700;
+    }
   </style>
 </head>
 <body>
@@ -265,6 +326,23 @@
         <div class="expenses-list">
           <div id="daily-list"></div>
         </div>
+        
+        <div class="table-container">
+          <h3>📊 일간 요약 테이블</h3>
+          <table id="daily-table">
+            <thead>
+              <tr>
+                <th>날짜</th>
+                <th>카테고리</th>
+                <th>설명</th>
+                <th>금액</th>
+                <th>삭제</th>
+              </tr>
+            </thead>
+            <tbody id="daily-table-body">
+            </tbody>
+          </table>
+        </div>
       </div>
       
       <!-- 주간 탭 -->
@@ -302,6 +380,23 @@
         <div class="expenses-list">
           <div id="weekly-list"></div>
         </div>
+        
+        <div class="table-container">
+          <h3>📊 주간 요약 테이블</h3>
+          <table id="weekly-table">
+            <thead>
+              <tr>
+                <th>주차</th>
+                <th>카테고리</th>
+                <th>설명</th>
+                <th>금액</th>
+                <th>삭제</th>
+              </tr>
+            </thead>
+            <tbody id="weekly-table-body">
+            </tbody>
+          </table>
+        </div>
       </div>
       
       <!-- 월간 탭 -->
@@ -338,6 +433,23 @@
         
         <div class="expenses-list">
           <div id="monthly-list"></div>
+        </div>
+        
+        <div class="table-container">
+          <h3>📊 월간 요약 테이블</h3>
+          <table id="monthly-table">
+            <thead>
+              <tr>
+                <th>월</th>
+                <th>카테고리</th>
+                <th>설명</th>
+                <th>금액</th>
+                <th>삭제</th>
+              </tr>
+            </thead>
+            <tbody id="monthly-table-body">
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -409,6 +521,7 @@
       
       if (typeExpenses.length === 0) {
         listContainer.innerHTML = '<div class="empty-message">지출 기록이 없습니다.</div>';
+        displayTable(type);
         return;
       }
       
@@ -439,6 +552,83 @@
       `;
       
       listContainer.innerHTML = html;
+      displayTable(type);
+    }
+    
+    function displayTable(type) {
+      const typeExpenses = expenses[type];
+      const tableBody = document.getElementById(`${type}-table-body`);
+      
+      if (typeExpenses.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #999;">데이터가 없습니다.</td></tr>';
+        return;
+      }
+      
+      // 날짜별로 그룹화
+      const grouped = {};
+      typeExpenses.forEach(expense => {
+        const key = expense.date;
+        if (!grouped[key]) {
+          grouped[key] = [];
+        }
+        grouped[key].push(expense);
+      });
+      
+      // 날짜 정렬
+      const sortedDates = Object.keys(grouped).sort().reverse();
+      
+      let html = '';
+      let overallTotal = 0;
+      
+      sortedDates.forEach((date, index) => {
+        const dayExpenses = grouped[date];
+        let dayTotal = 0;
+        
+        dayExpenses.forEach((expense, expIndex) => {
+          dayTotal += expense.amount;
+          overallTotal += expense.amount;
+          
+          if (expIndex === 0) {
+            html += `
+              <tr class="date-header">
+                <td colspan="5">${date}</td>
+              </tr>
+            `;
+          }
+          
+          html += `
+            <tr>
+              <td></td>
+              <td><span class="category-badge">${expense.category}</span></td>
+              <td>${expense.description}</td>
+              <td class="amount-positive">₩${expense.amount.toLocaleString()}</td>
+              <td><button class="btn-delete" onclick="deleteExpense('${type}', ${expense.id})">삭제</button></td>
+            </tr>
+          `;
+        });
+        
+        html += `
+          <tr class="daily-total">
+            <td></td>
+            <td>소계</td>
+            <td>${date}</td>
+            <td>₩${dayTotal.toLocaleString()}</td>
+            <td></td>
+          </tr>
+        `;
+      });
+      
+      html += `
+        <tr style="background: #e3f2fd; font-weight: 700; font-size: 16px;">
+          <td></td>
+          <td>전체 합계</td>
+          <td></td>
+          <td style="color: #667eea;">₩${overallTotal.toLocaleString()}</td>
+          <td></td>
+        </tr>
+      `;
+      
+      tableBody.innerHTML = html;
     }
     
     // 초기 표시
